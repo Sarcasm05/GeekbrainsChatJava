@@ -1,0 +1,17 @@
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.Button?>
+<VBox prefWidth="200" prefHeight="80" spacing="4" fx:controller="ChatController" xmlns:fx="http://javafx.com/fxml">
+    <TextArea fx:id="chatArea" VBox.vgrow="ALWAYS" editable="false" wrapText="true" focusTraversable="false" />
+    <HBox spacing="4">
+        <TextField fx:id="inputField" HBox.hgrow="ALWAYS" onAction="#sendMsg"/>
+        <Button text="Отправить" onAction="#sendMsg"/>
+    </HBox>
+
+    <padding>
+        <Insets left="12" right="12" top="8" bottom="8"/>
+    </padding>
+</VBox>
