@@ -3,7 +3,7 @@ import java.net.Socket;
 
 public class ServerConnection {
     private static String SERVER_IP = "localhost";
-    private static int SERVER_PORT = 8189;
+    private static int SERVER_PORT = 8186;
     private static Socket socket;
 
     public static Socket getSocket() throws IOException{
