@@ -29,9 +29,11 @@ public class AuthController {
                     while (true) {
                         String strFromServer = in.readUTF();
                         if (strFromServer.startsWith("/auth_ok")){
-                            Config.nick = strFromServer.split(" ")[1];
+                            System.out.println(strFromServer);
+                            Config.nick = strFromServer.split("\\s")[1];
                             Platform.runLater(() -> {
                                 Stage stage = (Stage) loginTF.getScene().getWindow();
+                                stage.close();
                             });
                         }
                     }

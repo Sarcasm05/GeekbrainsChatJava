@@ -32,6 +32,9 @@ public class ChatController {
     private void initialize() throws IOException{
         try {
             openLoginWindow();
+            Main.mainStage.setTitle(Main.mainStage.getTitle() + " (" + Config.nick + ")");
+            openConnection();
+            addCloseListener();
         }catch (IOException e){
             Alert  alert= new Alert(Alert.AlertType.ERROR);
             alert.setTitle("Ошибка подключения");
@@ -103,10 +106,10 @@ public class ChatController {
         }
     }
 
-    public void sendMsg(ActionEvent actionEvent) {
+    public void sendMsg() {
         if (!inputField.getText().trim().isEmpty()){
             try {
-                out.writeUTF(inputField.getText().trim());
+                out.writeUTF(inputField.getText().trim().toString());
                 inputField.clear();
                 inputField.requestFocus();
             }catch (IOException e){
