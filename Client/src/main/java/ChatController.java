@@ -36,7 +36,7 @@ public class ChatController {
             openConnection();
             addCloseListener();
         }catch (IOException e){
-            Alert  alert= new Alert(Alert.AlertType.ERROR);
+            Alert alert = new Alert(Alert.AlertType.ERROR);
             alert.setTitle("Ошибка подключения");
             alert.setHeaderText("Сервер не работает");
             alert.setContentText("Не забудь включить сервер!");
@@ -64,12 +64,13 @@ public class ChatController {
                 while (socket.isConnected()){
                     System.out.println("Готовы считывать");
                     String strFromServer = in.readUTF();
+                    System.out.println(strFromServer);
                     System.out.println("Считал " + strFromServer);
                     if (strFromServer.equalsIgnoreCase("/end")){
                         System.out.println("Конец цикла");
                         break;
                     }
-                    chatArea.appendText(strFromServer);
+                    chatArea.appendText(strFromServer + "\n");
                 }
             }catch (Exception e){
                 e.printStackTrace();
@@ -109,7 +110,7 @@ public class ChatController {
     public void sendMsg() {
         if (!inputField.getText().trim().isEmpty()){
             try {
-                out.writeUTF(inputField.getText().trim().toString());
+                out.writeUTF(inputField.getText().trim());
                 inputField.clear();
                 inputField.requestFocus();
             }catch (IOException e){

@@ -28,13 +28,13 @@ public class AuthController {
                 try {
                     while (true) {
                         String strFromServer = in.readUTF();
-                        if (strFromServer.startsWith("/auth_ok")){
-                            System.out.println(strFromServer);
+                        if (strFromServer.startsWith("/auth_ok ")){
                             Config.nick = strFromServer.split("\\s")[1];
                             Platform.runLater(() -> {
                                 Stage stage = (Stage) loginTF.getScene().getWindow();
                                 stage.close();
                             });
+                            return;
                         }
                     }
                 } catch (IOException e) {
@@ -46,8 +46,7 @@ public class AuthController {
 
     @FXML
     private void auth() throws IOException {
-        String auth = "/auth " + loginTF.getText() + " " + passwordTF.getText();
-        out.writeUTF(auth);
+        out.writeUTF("/auth " + loginTF.getText() + " " + passwordTF.getText());
     }
 
 }

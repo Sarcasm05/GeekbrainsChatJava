@@ -62,20 +62,20 @@ public class ClientHandler {
 
     public void readMessages() throws IOException {
         while (true) {
-            String strFromClient = in.readUTF();
-            if (strFromClient.startsWith("/")){
-                if (strFromClient.equals("/end")) {
+            String str = in.readUTF();
+            if (str.startsWith("/")){
+                if (str.equals("/end")) {
                     break;
                 }
-                if (strFromClient.startsWith("/w")){
-                    String[] tokens = strFromClient.split("\\s");
+                if (str.startsWith("/w ")){
+                    String[] tokens = str.split("\\s");
                     String nick = tokens[1];
-                    String msg = strFromClient.substring(4 + nick.length());
+                    String msg = str.substring(4 + nick.length());
                     myServer.sendMsgToClient(this, nick, msg);
                 }
                 continue;
             }
-            myServer.broadcastMsg(name + ": " + strFromClient);
+            myServer.broadcastMsg(name + ": " + str);
         }
     }
 

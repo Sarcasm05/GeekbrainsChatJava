@@ -6,7 +6,11 @@ import java.util.List;
 
 public class MyServer {
     private final int PORT = 8189;
+    private static MyServer server;
 
+    private static MyServer getServer(){
+        return server;
+    }
     private List<ClientHandler> clients;
     private AuthService authService;
 
@@ -44,6 +48,7 @@ public class MyServer {
     }
 
     public synchronized void broadcastMsg(String msg){
+        System.out.println(msg);
         for (ClientHandler o: clients) {
             o.sendMsg(msg);
         }
@@ -61,7 +66,7 @@ public class MyServer {
     }
 
     public synchronized void broadcastClientsList(){
-        StringBuilder sb = new StringBuilder("/clints ");
+        StringBuilder sb = new StringBuilder("/clients ");
         for (ClientHandler o: clients){
             sb.append(o.getName() + " ");
         }
