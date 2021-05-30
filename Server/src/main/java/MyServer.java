@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MyServer {
-    private final int PORT = 8189;
+    private final int PORT = 8188;
     private static MyServer server;
 
     private static MyServer getServer(){
@@ -30,6 +30,7 @@ public class MyServer {
                 new ClientHandler(this, socket);
             }
         } catch (IOException e){
+            e.printStackTrace();
             System.out.println("Ошибка в работе сервера");
         }finally {
             if (authService != null){
@@ -48,7 +49,6 @@ public class MyServer {
     }
 
     public synchronized void broadcastMsg(String msg){
-        System.out.println(msg);
         for (ClientHandler o: clients) {
             o.sendMsg(msg);
         }

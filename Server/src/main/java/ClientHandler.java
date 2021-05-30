@@ -2,6 +2,7 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
+import java.net.SocketTimeoutException;
 
 public class ClientHandler {
     private MyServer myServer;
@@ -26,7 +27,9 @@ public class ClientHandler {
                 try {
                     authentication();
                     readMessages();
-                }catch (IOException e){
+                }catch (SocketTimeoutException e){
+                    sendMsg("/end");
+                }catch (IOException e) {
                     e.printStackTrace();
                 }finally {
                     closeConnection();
@@ -39,12 +42,14 @@ public class ClientHandler {
 
     public void authentication() throws IOException {
         while (true) {
+            socket.setSoTimeout(120000);
             String str = in.readUTF();
             if (str.startsWith("/auth")) {
                 String[] parts = str.split("\\s");
                 String nick = myServer.getAuthService().getNickByLoginPass(parts[1], parts[2]);
                 if (nick != null){
                     if (!myServer.isNickBusy(nick)){
+                        socket.setSoTimeout(0);
                         sendMsg("/auth_ok " + nick);
                         name = nick;
                         myServer.broadcastMsg(name + " зашел в чат");
@@ -61,11 +66,11 @@ public class ClientHandler {
     }
 
     public void readMessages() throws IOException {
-        while (true) {
+        while (socket.isConnected()) {
             String str = in.readUTF();
             if (str.startsWith("/")){
                 if (str.equals("/end")) {
-                    break;
+                    closeConnection();
                 }
                 if (str.startsWith("/w ")){
                     String[] tokens = str.split("\\s");
