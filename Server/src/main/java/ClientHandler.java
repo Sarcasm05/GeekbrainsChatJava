@@ -48,11 +48,11 @@ public class ClientHandler {
             if (str.startsWith("/auth")) {
                 String[] parts = str.split("\\s");
                 try (Connection postgresConnection = DriverManager.getConnection("jdbc:postgresql://localhost:5432/geekbrains", "admin", "admin")) {
-                    Statement statement = postgresConnection.createStatement();
                     PreparedStatement prepareStatement = postgresConnection.prepareStatement("select nickname from \"Clients\" where login=? and password=?");
                     prepareStatement.setString(1, parts[1]);
                     prepareStatement.setString(2, parts[2]);
                     ResultSet clientsResultSet = prepareStatement.executeQuery();
+                    postgresConnection.close();
                     if (clientsResultSet != null) {
                         while (clientsResultSet.next()) {
                             name = clientsResultSet.getString("nickname");
@@ -101,6 +101,21 @@ public class ClientHandler {
                     String nick = tokens[1];
                     String msg = str.substring(4 + nick.length());
                     myServer.sendMsgToClient(this, nick, msg);
+                }
+                if (str.startsWith("/changenickname")) { // /nickname newnickname
+                    String[] tokens = str.split("\\s");
+                    String newnickname = tokens[1];
+                    try (Connection postgresConnection = DriverManager.getConnection("jdbc:postgresql://localhost:5432/geekbrains", "admin", "admin")) {
+                        PreparedStatement prepareStatement = postgresConnection.prepareStatement("update \"Clients\" set nickname=?  where nickname=?");
+                        prepareStatement.setString(1, newnickname);
+                        prepareStatement.setString(2, name);
+                        prepareStatement.executeUpdate(); // TODO добавить проверку
+                        myServer.broadcastMsg("Пользователь " + name + " заменил ник на " + newnickname);
+                        name = newnickname;
+                        postgresConnection.close();
+                    } catch (SQLException throwables) {
+                        throwables.printStackTrace();
+                    }
                 }
                 continue;
             }
