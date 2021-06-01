@@ -3,6 +3,7 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
+import java.sql.*;
 
 public class ClientHandler {
     private MyServer myServer;
@@ -46,6 +47,29 @@ public class ClientHandler {
             String str = in.readUTF();
             if (str.startsWith("/auth")) {
                 String[] parts = str.split("\\s");
+                try (Connection postgresConnection = DriverManager.getConnection("jdbc:postgresql://localhost:5432/geekbrains", "admin", "admin")) {
+                    Statement statement = postgresConnection.createStatement();
+                    PreparedStatement prepareStatement = postgresConnection.prepareStatement("select nickname from \"Clients\" where login=? and password=?");
+                    prepareStatement.setString(1, parts[1]);
+                    prepareStatement.setString(2, parts[2]);
+                    ResultSet clientsResultSet = prepareStatement.executeQuery();
+                    if (clientsResultSet != null) {
+                        while (clientsResultSet.next()) {
+                            name = clientsResultSet.getString("nickname");
+                            socket.setSoTimeout(0);
+                            sendMsg("/auth_ok " + name);
+                            myServer.broadcastMsg(name + " зашел в чат");
+                            myServer.subscribe(this);
+                            return;
+                        }
+                    } else {
+                        sendMsg("Неверные логин/пароль");
+                    }
+                } catch (SQLException throwables) {
+                    throwables.printStackTrace();
+                }
+            }
+                /*
                 String nick = myServer.getAuthService().getNickByLoginPass(parts[1], parts[2]);
                 if (nick != null){
                     if (!myServer.isNickBusy(nick)){
@@ -58,10 +82,10 @@ public class ClientHandler {
                     }else {
                         sendMsg("Учетная запись уже используется");
                     }
-                }else  {
-                    sendMsg("Неверные логин/пароль");
-                }
-            }
+
+            }else  {
+                sendMsg("Неверные логин/пароль");
+            } */
         }
     }
 
