@@ -70,7 +70,7 @@ public class ChatController {
                         System.out.println("Конец цикла");
                         break;
                     }
-                    chatArea.appendText(strFromServer + "\n");
+                    chatArea.appendText(strFromServer);
                 }
             }catch (Exception e){
                 e.printStackTrace();

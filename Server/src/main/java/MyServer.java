@@ -39,15 +39,6 @@ public class MyServer {
         }
     }
 
-    public synchronized boolean isNickBusy(String nick){
-        for (ClientHandler o : clients){
-            if (o.getName().equals(nick)){
-                return true;
-            }
-        }
-        return false;
-    }
-
     public synchronized void broadcastMsg(String msg){
         for (ClientHandler o: clients) {
             o.sendMsg(msg);
@@ -64,6 +55,16 @@ public class MyServer {
         }
         from.sendMsg("Пользователя " + nickTo + " нет в чате");
     }
+
+    public synchronized void loadLogMsgs(String nick, String msg){
+        for (ClientHandler o: clients){
+            if (o.getName().equals(nick)){
+                o.sendMsg(msg);
+                return;
+            }
+        }
+    }
+
 
     public synchronized void broadcastClientsList(){
         StringBuilder sb = new StringBuilder("/clients ");

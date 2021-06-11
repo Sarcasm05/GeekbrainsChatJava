@@ -6,10 +6,12 @@ import java.net.SocketTimeoutException;
 import java.sql.*;
 
 public class ClientHandler {
+    private String login;
     private MyServer myServer;
     private Socket socket;
     private DataInputStream in;
     private DataOutputStream out;
+    private ChatLogging chatLog;
 
     private String name;
 
@@ -24,6 +26,7 @@ public class ClientHandler {
             this.in = new DataInputStream(socket.getInputStream());
             this.out = new DataOutputStream(socket.getOutputStream());
             this.name = "";
+            this.login = "";
             new Thread(() ->{
                 try {
                     authentication();
@@ -56,10 +59,13 @@ public class ClientHandler {
                     if (clientsResultSet != null) {
                         while (clientsResultSet.next()) {
                             name = clientsResultSet.getString("nickname");
+                            login = parts[1];
                             socket.setSoTimeout(0);
+                            chatLog = new ChatLogging(login);
                             sendMsg("/auth_ok " + name);
                             myServer.broadcastMsg(name + " зашел в чат");
                             myServer.subscribe(this);
+                            myServer.loadLogMsgs(name, chatLog.readFromLog());
                             return;
                         }
                     } else {
@@ -69,23 +75,6 @@ public class ClientHandler {
                     throwables.printStackTrace();
                 }
             }
-                /*
-                String nick = myServer.getAuthService().getNickByLoginPass(parts[1], parts[2]);
-                if (nick != null){
-                    if (!myServer.isNickBusy(nick)){
-                        socket.setSoTimeout(0);
-                        sendMsg("/auth_ok " + nick);
-                        name = nick;
-                        myServer.broadcastMsg(name + " зашел в чат");
-                        myServer.subscribe(this);
-                        return;
-                    }else {
-                        sendMsg("Учетная запись уже используется");
-                    }
-
-            }else  {
-                sendMsg("Неверные логин/пароль");
-            } */
         }
     }
 
@@ -112,20 +101,24 @@ public class ClientHandler {
                         prepareStatement.executeUpdate(); // TODO добавить проверку
                         myServer.broadcastMsg("Пользователь " + name + " заменил ник на " + newnickname);
                         name = newnickname;
-                        postgresConnection.close();
                     } catch (SQLException throwables) {
                         throwables.printStackTrace();
                     }
                 }
                 continue;
             }
-            myServer.broadcastMsg(name + ": " + str);
+            String broadcastMsg = name + ": " + str;
+            myServer.broadcastMsg(broadcastMsg);
         }
     }
 
+
     public void sendMsg(String msg){
         try {
-            out.writeUTF(msg);
+            out.writeUTF(msg + "\n");
+            if (!msg.startsWith("/")){
+                chatLog.writeToLog(msg + "\n");
+            }
         } catch (IOException e){
             e.printStackTrace();
         }
