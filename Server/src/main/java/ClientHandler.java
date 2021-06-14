@@ -4,6 +4,9 @@ import java.io.IOException;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
 import java.sql.*;
+import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class ClientHandler {
     private String login;
@@ -12,8 +15,9 @@ public class ClientHandler {
     private DataInputStream in;
     private DataOutputStream out;
     private ChatLogging chatLog;
-
     private String name;
+
+    private ExecutorService service;
 
     public String getName() {
         return name;
@@ -27,7 +31,8 @@ public class ClientHandler {
             this.out = new DataOutputStream(socket.getOutputStream());
             this.name = "";
             this.login = "";
-            new Thread(() ->{
+            service = Executors.newFixedThreadPool(1);
+            service.submit(() -> {
                 try {
                     authentication();
                     readMessages();
@@ -38,7 +43,19 @@ public class ClientHandler {
                 }finally {
                     closeConnection();
                 }
-            }).start();
+            });
+            /*new Thread(() ->{
+                try {
+                    authentication();
+                    readMessages();
+                }catch (SocketTimeoutException e){
+                    sendMsg("/end");
+                }catch (IOException e) {
+                    e.printStackTrace();
+                }finally {
+                    closeConnection();
+                }
+            }).start();*/
         }catch (IOException e){
             throw new RuntimeException("Проблемы при создании обработчика клиента");
         }
@@ -127,6 +144,7 @@ public class ClientHandler {
     public void closeConnection(){
         myServer.unsubscribe(this);
         myServer.broadcastMsg(name + " вышел из чата");
+        service.shutdownNow();
         try {
             in.close();
         } catch (IOException e){
