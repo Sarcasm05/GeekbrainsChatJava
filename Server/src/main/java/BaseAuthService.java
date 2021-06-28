@@ -1,3 +1,6 @@
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -15,23 +18,21 @@ public class BaseAuthService implements AuthService{
         }
     }
 
+    private static final Logger LOG = LogManager.getLogger(BaseAuthService.class.getName());
     private List<Entry> entries;
 
     @Override
     public void start() {
-        System.out.println("Сервис аутентификации запущен.");
+        LOG.info("Сервис аутентификации запущен.");
     }
 
     @Override
     public void stop() {
-        System.out.println("Сервис аутентификации остановлен");
+        LOG.info("Сервис аутентификации остановлен");
     }
 
     public BaseAuthService(){
         entries = new ArrayList<>();
-        //entries.add(new Entry("qwe", "qwe", "qwe"));
-        //entries.add(new Entry("asd", "asd", "asd"));
-        //entries.add(new Entry("zxc", "zxc", "zxc"));
     }
 
     @Override

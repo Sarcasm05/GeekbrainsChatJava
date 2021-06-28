@@ -1,3 +1,6 @@
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -18,20 +21,22 @@ public class MyServer {
         return authService;
     }
 
+    private static final Logger LOG = LogManager.getLogger(MyServer.class.getName());
+
     public MyServer(){
         try (ServerSocket server = new ServerSocket(PORT)){
             authService = new BaseAuthService();
             authService.start();
             clients = new ArrayList<>();
             while (true){
-                System.out.println("Сервер ожидает подключения...");
+                LOG.info("Сервер ожидает подключения...");
                 Socket socket = server.accept();
-                System.out.println("Клиент подключился ");
+                LOG.info("Клиент подключился ");
                 new ClientHandler(this, socket);
             }
         } catch (IOException e){
             e.printStackTrace();
-            System.out.println("Ошибка в работе сервера");
+            LOG.error("Ошибка в работе сервера");
         }finally {
             if (authService != null){
                 authService.stop();

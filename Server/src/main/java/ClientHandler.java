@@ -1,3 +1,6 @@
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -23,6 +26,8 @@ public class ClientHandler {
         return name;
     }
 
+    private static final Logger LOG = LogManager.getLogger(ClientHandler.class.getName());
+
     public ClientHandler(MyServer myServer, Socket socket) {
         try {
             this.myServer = myServer;
@@ -44,19 +49,8 @@ public class ClientHandler {
                     closeConnection();
                 }
             });
-            /*new Thread(() ->{
-                try {
-                    authentication();
-                    readMessages();
-                }catch (SocketTimeoutException e){
-                    sendMsg("/end");
-                }catch (IOException e) {
-                    e.printStackTrace();
-                }finally {
-                    closeConnection();
-                }
-            }).start();*/
         }catch (IOException e){
+            LOG.error("Проблемы при создании обработчика клиента");
             throw new RuntimeException("Проблемы при создании обработчика клиента");
         }
     }

@@ -11,6 +11,8 @@ import javafx.scene.control.TextField;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.omg.IOP.TAG_JAVA_CODEBASE;
 
 import java.io.DataInputStream;
@@ -28,14 +30,17 @@ public class ChatController {
     @FXML
     public TextField inputField;
 
+    private static final Logger LOG = LogManager.getLogger(ChatController.class.getName());
+
     @FXML
-    private void initialize() throws IOException{
+    private void initialize(){
         try {
             openLoginWindow();
             Main.mainStage.setTitle(Main.mainStage.getTitle() + " (" + Config.nick + ")");
             openConnection();
             addCloseListener();
         }catch (IOException e){
+            LOG.error("Ошибка подключения, сервер не работает " + e.getMessage());
             Alert alert = new Alert(Alert.AlertType.ERROR);
             alert.setTitle("Ошибка подключения");
             alert.setHeaderText("Сервер не работает");
@@ -62,12 +67,9 @@ public class ChatController {
         new Thread(() -> {
             try {
                 while (socket.isConnected()){
-                    System.out.println("Готовы считывать");
                     String strFromServer = in.readUTF();
                     System.out.println(strFromServer);
-                    System.out.println("Считал " + strFromServer);
                     if (strFromServer.equalsIgnoreCase("/end")){
-                        System.out.println("Конец цикла");
                         break;
                     }
                     chatArea.appendText(strFromServer);
@@ -115,6 +117,7 @@ public class ChatController {
                 inputField.requestFocus();
             }catch (IOException e){
                 e.printStackTrace();
+                LOG.error("Ошибка отправки сообщения " + e.getMessage());
                 Alert alert = new Alert(Alert.AlertType.WARNING);
                 alert.setTitle("Ошибка отправки сообщения");
                 alert.setHeaderText("Ошибка отправки сообщения");
